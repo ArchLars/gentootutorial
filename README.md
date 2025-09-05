@@ -245,7 +245,10 @@ Including these modules enables early KMS so the NVIDIA driver is ready before W
 bootctl --esp-path=/boot install
 bootctl list
 ls -la /boot/loader/entries/
-systemctl status systemd-gpt-auto-generator
+# After reboot: verify GPT auto
+# systemctl status systemd-gpt-auto-generator
+# From chroot, inspect the generator
+# systemctl --root=/mnt/gentoo show systemd-gpt-auto-generator
 
 # Loader defaults
 mkdir -p /boot/loader
@@ -256,6 +259,8 @@ console-mode auto
 editor no
 EOF
 ```
+
+> `systemd-gpt-auto-generator` runs during boot to create mount units. Inside the chroot it has not executed yet, so `systemctl status` will show nothing. Use `systemctl --root=/mnt/gentoo show systemd-gpt-auto-generator` in the chroot or run `systemctl status systemd-gpt-auto-generator` after the first reboot.
 
 You do not need to write a manual entry for each kernel; with the `systemd` and `systemd-boot` flags, `sys-kernel/installkernel` uses `kernel-install` to create versioned entries automatically. A stale `/boot/loader/entries/gentoo.conf` that references missing `/vmlinuz` or `/initramfs` symlinks will break boot, so rely on the generated entries instead.
 
@@ -667,7 +672,8 @@ printf 'add_drivers+=" nvidia nvidia_modeset nvidia_uvm nvidia_drm "\n' > /etc/d
 bootctl --esp-path=/boot install
 bootctl list
 ls -la /boot/loader/entries/
-systemctl status systemd-gpt-auto-generator
+# After reboot: systemctl status systemd-gpt-auto-generator
+# From chroot: systemctl --root=/mnt/gentoo show systemd-gpt-auto-generator
 mkdir -p /boot/loader
 printf 'default gentoo
 timeout 10
