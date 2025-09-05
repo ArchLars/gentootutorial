@@ -1,25 +1,35 @@
+/* Theme variables for Waybar.
+   Override these in another stylesheet or later in this file to create a new theme. */
+:root {
+  --color-bg: #2e3440;
+  --color-accent: #3b4252;
+  --color-accent-alt: #434c5e;
+  --color-accent-hover: #4c566a;
+  --color-text: #d8dee9;
+}
+
 * {
   border: none;
   border-radius: 0;
   font-family: monospace;
   font-size: 12px;
-  color: #d8dee9;
+  color: var(--color-text);
 }
 
 #top {
-  background: #2e3440;
+  background: var(--color-bg);
 }
 
 #left {
-  background: #3b4252;
+  background: var(--color-accent);
 }
 
 #left .module {
-  background: #434c5e;
+  background: var(--color-accent-alt);
 }
 
 #left .module:hover {
-  background: #4c566a;
+  background: var(--color-accent-hover);
 }
 
 #clock {
@@ -29,3 +39,4 @@
 #tray {
   padding: 0 4px;
 }
+
