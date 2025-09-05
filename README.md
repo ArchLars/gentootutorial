@@ -31,6 +31,7 @@ lsblk -e7
 
 # Sync clock over network (helps with SSL)
 ntpd -qg -x -n -p pool.ntp.org || true
+[ -d /sys/firmware/efi ] || { echo "Not booted in UEFI mode!"; exit 1; }
 ```
 
 ---
@@ -63,6 +64,12 @@ mkfs.ext4 -L root     ${d}p2
 mount ${d}p2 /mnt/gentoo
 mkdir -p /mnt/gentoo/boot
 mount ${d}p1 /mnt/gentoo/boot
+```
+
+Verify the partition layout:
+
+```bash
+lsblk -o NAME,SIZE,TYPE,FSTYPE,PARTTYPENAME
 ```
 
 > We deliberately do not create `/home`. GPT auto can also handle `/home` and other mount points by GUID, but we keep it minimal like the Arch guide.
@@ -143,9 +150,9 @@ echo 'EMERGE_DEFAULT_OPTS="--getbinpkg --binpkg-respect-use=y --with-bdeps=y"' >
 Select a **systemd desktop** profile for a Wayland desktop and good defaults.
 
 ```bash
-eselect profile list
-# Pick the latest "amd64/17.1/desktop/systemd" entry (number X)
-eselect profile set X
+eselect profile list | grep -E "desktop.*systemd"
+# Replace N with the matching profile number
+eselect profile set N
 ```
 
 Set global USE features for Wayland desktop and NVIDIA, then refresh environment:
@@ -169,6 +176,7 @@ MAKEOPTS="-j16"
 EOF
 
 env-update && source /etc/profile
+emerge --ask --update --deep --newuse @world
 ```
 
 > If you truly have a working iGPU as well, add `amdgpu` to `VIDEO_CARDS`. The 7800X3D typically has no active iGPU, so `nvidia` alone is appropriate.
@@ -198,11 +206,18 @@ EOF
 emerge --ask --newuse sys-kernel/installkernel
 ```
 
+# Register the installed kernel and generate an initramfs
+```bash
+ver=$(ls /lib/modules | head -n1)
+kernel-install add "$ver" /usr/lib/modules/$ver/vmlinuz
+```
+
+
 Create a kernel command line file used by `kernel-install` for new entries. We keep it simple, no `root=` parameter is provided so GPT auto will discover the root partition by GUID.
 
 ```bash
 cat > /etc/kernel/cmdline << 'EOF'
-nvidia_drm.modeset=1 nvidia_drm.modeset=1 nvidia_drm.fbdev=1
+nvidia_drm.modeset=1 nvidia_drm.fbdev=1
 zswap.enabled=1 zswap.max_pool_percent=25 zswap.shrinker_enabled=1 zswap.compressor=lz4
 EOF
 ```
@@ -216,7 +231,9 @@ add_drivers+=" nvidia nvidia_modeset nvidia_uvm nvidia_drm "
 EOF
 ```
 
-> When `gentoo-kernel-bin` gets upgraded, `kernel-install` will regenerate the initramfs with dracut and write a new loader entry automatically. You can trigger it manually for the current kernel with `kernel-install add $(uname -r) /usr/lib/modules/$(uname -r)/vmlinuz` if you wish.
+Including these modules enables early KMS so the NVIDIA driver is ready before Wayland starts.
+
+> When `gentoo-kernel-bin` gets upgraded, `kernel-install` will regenerate the initramfs with dracut and write a new loader entry automatically. To regenerate manually later, run the kernel-install command above again.
 
 ---
 
@@ -226,6 +243,9 @@ EOF
 
 ```bash
 bootctl --esp-path=/boot install
+bootctl list
+ls -la /boot/loader/entries/
+systemctl status systemd-gpt-auto-generator
 
 # Loader defaults
 mkdir -p /boot/loader
@@ -271,8 +291,9 @@ EOF
 passwd
 
 # User
-useradd -m -G wheel,video,audio,plugdev,lp,storage -s /bin/zsh lars
+useradd -m -G wheel,video,audio,plugdev,lp,storage -s /bin/bash lars
 passwd lars
+# Switch to zsh after it is installed later
 
 # Allow wheel to sudo
 emerge --ask app-admin/sudo
@@ -284,7 +305,7 @@ sed -i 's/^# %wheel/%wheel/' /etc/sudoers
 ## Step 7.5 Swap File
 
 ```bash
-sudo fallocate -l 16G /swapfile
+sudo dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 ```
@@ -341,7 +362,8 @@ Set the kernel module to use DRM modeset early (we already pass `nvidia_drm.mode
 Rebuild initramfs to ensure the modules are present now:
 
 ```bash
-dracut --force /boot/initramfs $(uname -r)
+ver=$(ls /lib/modules | head -n1)
+dracut --force "/boot/initramfs-$ver.img" "$ver"
 ```
 
 ---
@@ -411,6 +433,7 @@ Zsh and extras:
 
 ```bash
 emerge --ask app-shells/zsh app-shells/zsh-autosuggestions app-shells/zsh-syntax-highlighting
+chsh -s /bin/zsh lars
 # oh-my-zsh lives in the GURU overlay as app-shells/ohmyzsh
 ```
 
@@ -465,7 +488,8 @@ emerge --ask --update --deep --newuse @world
 Clean up and regenerate initramfs if you changed driver modules:
 
 ```bash
-dracut --force /boot/initramfs $(uname -r)
+ver=$(ls /lib/modules | head -n1)
+dracut --force "/boot/initramfs-$ver.img" "$ver"
 ```
 
 Enable periodic services and power tools:
@@ -614,7 +638,7 @@ mirrorselect -i -o >> /etc/portage/make.conf
 mkdir -p /etc/portage/binrepos.conf
 printf "[gentoo]\npriority = 90\nsync-uri = https://distfiles.gentoo.org/releases/amd64/binpackages/17.1/x86-64-v3/\n" > /etc/portage/binrepos.conf/gentoobinhost.conf
 echo 'EMERGE_DEFAULT_OPTS="--getbinpkg --binpkg-respect-use=y --with-bdeps=y"' >> /etc/portage/make.conf
-eselect profile list && eselect profile set <desktop+systemd profile number>
+eselect profile list | grep -E "desktop.*systemd" && eselect profile set N
 
 # USE, VIDEO_CARDS
 cat >> /etc/portage/make.conf << 'EOF'
@@ -623,31 +647,42 @@ INPUT_DEVICES="libinput"
 USE="egl wayland vulkan pipewire pulseaudio udev bluetooth dbus X opengl"
 ABI_X86="64 32"
 EOF
+env-update && source /etc/profile
+emerge --ask --update --deep --newuse @world
 
 # Kernel, dracut, installkernel
 emerge --ask sys-kernel/linux-firmware sys-kernel/gentoo-kernel-bin sys-kernel/dracut sys-kernel/installkernel
 mkdir -p /etc/portage/package.use
 printf 'sys-kernel/installkernel systemd systemd-boot dracut\n' > /etc/portage/package.use/installkernel
 emerge --ask --newuse sys-kernel/installkernel
+ver=$(ls /lib/modules | head -n1)
+kernel-install add "$ver" /usr/lib/modules/$ver/vmlinuz
 
 # Kernel cmdline and dracut NVIDIA
-printf 'quiet loglevel=3 nvidia_drm.modeset=1 zswap.enabled=1 zswap.max_pool_percent=25\n' > /etc/kernel/cmdline
+printf 'nvidia_drm.modeset=1 nvidia_drm.fbdev=1 zswap.enabled=1 zswap.max_pool_percent=25\n' > /etc/kernel/cmdline
 mkdir -p /etc/dracut.conf.d
 printf 'add_drivers+=" nvidia nvidia_modeset nvidia_uvm nvidia_drm "\n' > /etc/dracut.conf.d/10-nvidia.conf
 
 # systemd-boot
 bootctl --esp-path=/boot install
+bootctl list
+ls -la /boot/loader/entries/
+systemctl status systemd-gpt-auto-generator
 mkdir -p /boot/loader
-printf 'default gentoo\ntimeout 3\neditor no\n' > /boot/loader/loader.conf
+printf 'default gentoo
+timeout 10
+console-mode auto
+editor no
+' > /boot/loader/loader.conf
 
 # Base system settings, user, sudo
 ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime && hwclock --systohc
 printf 'en_US.UTF-8 UTF-8\nnb_NO.UTF-8 UTF-8\n' > /etc/locale.gen && locale-gen
 printf 'LANG=en_US.UTF-8\n' > /etc/locale.conf
-echo 'mybox' > /etc/hostname
-printf '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 mybox\n' > /etc/hosts
+echo 'PurpleRain' > /etc/hostname
+printf '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 PurpleRain\n' > /etc/hosts
 emerge --ask app-admin/sudo && sed -i 's/^# %wheel/%wheel/' /etc/sudoers
-passwd && useradd -m -G wheel,video,audio,plugdev,lp,storage -s /bin/zsh lars && passwd lars
+passwd && useradd -m -G wheel,video,audio,plugdev,lp,storage -s /bin/bash lars && passwd lars
 
 # Networking and audio
 emerge --ask net-misc/networkmanager net-firewall/firewalld sys-power/cpupower media-video/pipewire media-video/wireplumber
@@ -656,6 +691,8 @@ systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.serv
 
 # NVIDIA + mangowc
 emerge --ask x11-drivers/nvidia-drivers gui-libs/egl-wayland
+ver=$(ls /lib/modules | head -n1)
+dracut --force "/boot/initramfs-$ver.img" "$ver"
 emerge --ask --verbose eselect-repository
 eselect repository enable guru
 emerge --sync guru
@@ -667,7 +704,9 @@ cp /tmp/mangowc/portage/patches/*.patch /etc/portage/patches/gui-libs/wlroots/
 emerge --ask --verbose gui-wm/mangowc gui-apps/waybar x11-terms/foot
 
 # Apps
-emerge --ask www-client/firefox-bin mail-client/thunderbird-bin app-misc/fastfetch
+emerge --ask www-client/firefox-bin mail-client/thunderbird-bin
+emerge --ask app-shells/zsh app-shells/zsh-autosuggestions app-shells/zsh-syntax-highlighting
+chsh -s /bin/zsh lars
 
 # Exit and reboot
 exit; umount -R /mnt/gentoo; reboot
