@@ -1,4 +1,4 @@
-# Gentoo Linux Install Guide (KDE Plasma + Wayland + NVIDIA, systemd, systemd‑boot, GPT auto, dracut, binary‑first)
+# Gentoo Linux Install Guide (mangowc + Wayland + NVIDIA, systemd, systemd‑boot, GPT auto, dracut, binary‑first)
 
 ## Partitioning strategy
 
@@ -140,11 +140,11 @@ echo 'EMERGE_DEFAULT_OPTS="--getbinpkg --binpkg-respect-use=y --with-bdeps=y"' >
 
 ## Step 4, Profile, USE flags, VIDEO_CARDS
 
-Select a **systemd desktop Plasma** profile for a Wayland desktop and good defaults.
+Select a **systemd desktop** profile for a Wayland desktop and good defaults.
 
 ```bash
 eselect profile list
-# Pick the latest "amd64/17.1/desktop/plasma/systemd" entry (number X)
+# Pick the latest "amd64/17.1/desktop/systemd" entry (number X)
 eselect profile set X
 ```
 
@@ -157,7 +157,7 @@ VIDEO_CARDS="nvidia"
 INPUT_DEVICES="libinput"
 
 # Common toggles for a modern desktop
-USE="alsa bluetooth dbus egl wayland vulkan pipewire pulseaudio udev X kde plasma sddm qt5 qt6 opengl -gtk -gnome"
+USE="alsa bluetooth dbus egl wayland vulkan pipewire pulseaudio udev X opengl -gtk -gnome"
 
 # ABI for Steam and 32-bit NV libs (profile handles multilib, this is just explicit)
 ABI_X86="64 32"
@@ -334,9 +334,9 @@ Install the driver with Wayland support and related bits. Gentoo’s ebuilds pro
 emerge --ask x11-drivers/nvidia-drivers gui-libs/egl-wayland
 ```
 
-Set the kernel module to use DRM modeset early (we already pass `nvidia_drm.modeset=1` in `/etc/kernel/cmdline`). No Xorg config is required for Wayland on Plasma. If you will also use Xorg apps, the GLVND stack is used automatically.
+Set the kernel module to use DRM modeset early (we already pass `nvidia_drm.modeset=1` in `/etc/kernel/cmdline`). No Xorg config is required for Wayland on mangowc. If you will also use Xorg apps, the GLVND stack is used automatically.
 
-> If you truly have an AMD iGPU you want to use, add `amdgpu` to `VIDEO_CARDS` then `emerge --changed-use --deep @world`. Hybrid setups on Wayland are possible via KWin and GBM. Most 7800X3D builds do not expose an iGPU, so keep it simple.
+> If you truly have an AMD iGPU you want to use, add `amdgpu` to `VIDEO_CARDS` then `emerge --changed-use --deep @world`. Hybrid setups on Wayland are possible via wlroots compositors. Most 7800X3D builds do not expose an iGPU, so keep it simple.
 
 Rebuild initramfs to ensure the modules are present now:
 
@@ -355,32 +355,35 @@ emerge --ask media-video/pipewire media-video/wireplumber
 systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.service
 ```
 
-> The `sound-server` USE on PipeWire controls whether it acts as the PulseAudio replacement. The Plasma profile and our USE set cover this in most cases.
+> The `sound-server` USE on PipeWire controls whether it acts as the PulseAudio replacement. The desktop profile and our USE set cover this in most cases.
 
 ---
 
-## Step 11, KDE Plasma 6, SDDM, Wayland
+## Step 11, mangowc and Waybar
 
-Install the desktop meta, SDDM, and a few KDE apps matching the original list.
+Install the mangowc compositor, Waybar for panels, and a basic terminal.
 
 ```bash
 emerge --ask \
-  kde-plasma/plasma-meta x11-misc/sddm \
-  kde-apps/dolphin kde-apps/konsole x11-terms/kitty \
-  kde-apps/kdegraphics-thumbnailers kde-apps/ffmpegthumbs \
-  kde-plasma/kdeplasma-addons kde-apps/kio-extras
-
-# Enable graphical login
-systemctl enable sddm.service
+  gui-wm/mangowc gui-apps/waybar \
+  x11-terms/foot
 ```
 
-> SDDM runs Wayland sessions fine on Plasma 6. You can pick “Plasma (Wayland)” on the login screen.
-
-Optional KDE apps from the list:
+Copy the example Nord "Polar Night" configuration from this repository:
 
 ```bash
-emerge --ask kde-apps/kate kde-apps/gwenview kde-apps/ark
+mkdir -p ~/.config/mango
+cp -r /path/to/mangowc-config/* ~/.config/mango/
+chmod +x ~/.config/mango/autostart.sh
 ```
+
+Start mangowc from a TTY with:
+
+```bash
+mango
+```
+
+The included Waybar setup provides a left launcher bar and a top bar with a centered clock and a right‑aligned system tray, all styled with the Nord "Polar Night" hues for a clean technical look.
 
 ---
 
@@ -431,7 +434,7 @@ emerge --ask games-util/protonup-qt
 emerge --ask dev-util/nvidia-cuda-toolkit
 ```
 
-> Ensure your profile is multilib so 32‑bit libraries are available. The Desktop Plasma systemd profile is multilib by default. For DXVK you usually do not need the `-bin` variant.
+> Ensure your profile is multilib so 32‑bit libraries are available. The desktop systemd profile is multilib by default. For DXVK you usually do not need the `-bin` variant.
 
 ---
 
@@ -442,11 +445,6 @@ nmcli device status   # quick check
 firewall-cmd --state  # should be running
 ```
 
-Optional Plasma firewall settings applet:
-
-```bash
-emerge --ask kde-plasma/plasma-firewall
-```
 
 ---
 
@@ -569,7 +567,7 @@ reboot
 ## Troubleshooting and tips
 
 - **No root found at boot** ensure the root partition type GUID is `8304` and the ESP is `EF00`, both on the same disk. Also ensure `bootctl` was installed on that ESP. You can always add `root=PARTUUID=<uuid>` to `/etc/kernel/cmdline` if needed, but the goal here is to keep it GUID‑driven.
-- **NVIDIA on Wayland** you must have `nvidia_drm.modeset=1` on the kernel command line, and `gui-libs/egl-wayland` installed. KDE Plasma on Wayland should then pick GBM.
+- **NVIDIA on Wayland** you must have `nvidia_drm.modeset=1` on the kernel command line, and `gui-libs/egl-wayland` installed. mangowc is wlroots based and will pick GBM when these are present.
 - **Binary packages missing** temporarily switch binrepo to baseline `x86-64` by editing `/etc/portage/binrepos.conf/gentoobinhost.conf`. Portage falls back to source automatically unless you used `--getbinpkgonly`.
 - **Steam 32‑bit** make sure your profile is multilib. If you used a `nomultilib` profile by accident, switch to a multilib desktop profile and update world.
 - **Firmware** keep `sys-kernel/linux-firmware` up to date. AMD microcode for CPUs is bundled there. The `gentoo-kernel-bin` will load early microcode when present in the initramfs.
@@ -610,13 +608,13 @@ mirrorselect -i -o >> /etc/portage/make.conf
 mkdir -p /etc/portage/binrepos.conf
 printf "[gentoo]\npriority = 90\nsync-uri = https://distfiles.gentoo.org/releases/amd64/binpackages/17.1/x86-64-v3/\n" > /etc/portage/binrepos.conf/gentoobinhost.conf
 echo 'EMERGE_DEFAULT_OPTS="--getbinpkg --binpkg-respect-use=y --with-bdeps=y"' >> /etc/portage/make.conf
-eselect profile list && eselect profile set <plasma+systemd profile number>
+eselect profile list && eselect profile set <desktop+systemd profile number>
 
 # USE, VIDEO_CARDS
 cat >> /etc/portage/make.conf << 'EOF'
 VIDEO_CARDS="nvidia"
 INPUT_DEVICES="libinput"
-USE="egl wayland vulkan pipewire pulseaudio udev bluetooth dbus X kde plasma sddm qt5 qt6 opengl"
+USE="egl wayland vulkan pipewire pulseaudio udev bluetooth dbus X opengl"
 ABI_X86="64 32"
 EOF
 
@@ -650,10 +648,9 @@ emerge --ask net-misc/networkmanager net-firewall/firewalld sys-power/cpupower m
 systemctl enable NetworkManager firewalld fstrim.timer
 systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.service
 
-# NVIDIA + KDE Plasma
+# NVIDIA + mangowc
 emerge --ask x11-drivers/nvidia-drivers gui-libs/egl-wayland
-emerge --ask kde-plasma/plasma-meta x11-misc/sddm kde-apps/dolphin kde-apps/konsole x11-terms/kitty
-systemctl enable sddm
+emerge --ask gui-wm/mangowc gui-apps/waybar x11-terms/foot
 
 # Apps
 emerge --ask www-client/firefox-bin mail-client/thunderbird-bin app-misc/fastfetch
