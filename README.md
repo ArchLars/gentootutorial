@@ -205,7 +205,7 @@ Create a kernel command line file used by `kernel-install` for new entries. We k
 cat > /etc/kernel/cmdline << 'EOF'
 quiet loglevel=3 splash
 nvidia_drm.modeset=1
-zswap.enabled=1 zswap.max_pool_percent=25
+zswap.enabled=1 zswap.max_pool_percent=25 zswap.shrinker_enabled=1 zswap.compressor=lz4
 EOF
 ```
 
@@ -233,8 +233,8 @@ bootctl --esp-path=/boot install
 mkdir -p /boot/loader
 cat > /boot/loader/loader.conf << 'EOF'
 default gentoo
-timeout 3
-console-mode max
+timeout 10
+console-mode auto
 editor no
 EOF
 ```
@@ -272,11 +272,11 @@ locale-gen
 echo 'LANG=en_US.UTF-8' > /etc/locale.conf
 
 # Hostname and hosts
-echo 'mybox' > /etc/hostname
+echo 'PurpleRain' > /etc/hostname
 cat > /etc/hosts << 'EOF'
 127.0.0.1   localhost
 ::1         localhost
-127.0.1.1   mybox
+127.0.1.1   PurpleRain
 EOF
 
 # Root password
@@ -541,9 +541,7 @@ reboot
 
 - `partitionmanager` → `kde-apps/partitionmanager`
 - `ksystemlog` → `kde-apps/ksystemlog`
-- `systemdgenie` → not needed, systemd tools are integrated
 - `nohang` → `sys-apps/nohang` in an overlay (GURU)
-- `mkinitcpio-firmware` → not needed on Gentoo, firmware handled by `sys-kernel/linux-firmware`
 - `ark` → `kde-apps/ark`
 
 ---
@@ -596,7 +594,7 @@ eselect profile list && eselect profile set <plasma+systemd profile number>
 
 # USE, VIDEO_CARDS
 cat >> /etc/portage/make.conf << 'EOF'
-VIDEO_CARDS="nvidia"
+VIDEO_CARDS="nvidia amdgpu radeonsi"
 INPUT_DEVICES="libinput"
 USE="egl wayland vulkan pipewire pulseaudio udev bluetooth dbus X kde plasma sddm qt5 qt6 opengl"
 ABI_X86="64 32"
