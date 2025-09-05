@@ -1,5 +1,5 @@
 
-````md
+
 ### Wikiman Integration for Documentation and Wiki Lookup
 
 The AI agent can use **Wikiman**, an offline search engine that indexes Gentoo Wiki snapshots, to retrieve context and follow up details related to Gentoo installation, configuration, or troubleshooting.
