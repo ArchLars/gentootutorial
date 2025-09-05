@@ -51,9 +51,17 @@ copy_mangowc_config() {
 apply_css_variables() {
   local css_dest="$HOME/.config/mangowc/style.css"
   local wal_css="$HOME/.cache/wal/colors.css"
+  local start_marker="/* wal-start */"
+  local end_marker="/* wal-end */"
   if [[ -f "$wal_css" ]]; then
     mkdir -p "$(dirname "$css_dest")"
-    cat "$wal_css" >> "$css_dest"
+    local wal_block
+    wal_block=$(printf '%s\n' "$start_marker"; cat "$wal_css"; printf '%s\n' "$end_marker")
+    if [[ -f "$css_dest" ]]; then
+      sed -e '/\/\* wal-start \*\//,/\/\* wal-end \*\//d' "$css_dest" > "${css_dest}.tmp"
+      mv "${css_dest}.tmp" "$css_dest"
+    fi
+    printf '%s\n' "$wal_block" >> "$css_dest"
     echo "Applied pywal CSS variables to $css_dest"
   else
     echo "No pywal colors.css found at $wal_css; skipping"
