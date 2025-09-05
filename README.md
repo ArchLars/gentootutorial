@@ -8,7 +8,6 @@ Two partitions only, both GPT:
 
 2) **Root** the rest
 
-No swap partition. We use zswap (in‑kernel compressed swap cache) instead. You can add a swapfile later if desired.
 
 We depend on **systemd‑gpt‑auto‑generator** to discover root. That means we must set the **type GUIDs** correctly:
 
@@ -626,7 +625,7 @@ eselect profile list && eselect profile set <plasma+systemd profile number>
 
 # USE, VIDEO_CARDS
 cat >> /etc/portage/make.conf << 'EOF'
-VIDEO_CARDS="nvidia amdgpu radeonsi"
+VIDEO_CARDS="nvidia"
 INPUT_DEVICES="libinput"
 USE="egl wayland vulkan pipewire pulseaudio udev bluetooth dbus X kde plasma sddm qt5 qt6 opengl"
 ABI_X86="64 32"
