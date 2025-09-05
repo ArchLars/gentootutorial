@@ -239,16 +239,6 @@ EOF
 
 You do not need to write a manual entry for each kernel, `sys-kernel/installkernel` plus `kernel-install` will do it. A stub entry can be created initially if desired:
 
-```bash
-mkdir -p /boot/loader/entries
-cat > /boot/loader/entries/gentoo.conf << 'EOF'
-title   Gentoo Linux (autodiscovered root)
-linux   /vmlinuz
-initrd  /initramfs
-options $kernelopts
-EOF
-```
-
 - We intentionally omit `root=` in `options`. The **systemd GPT auto generator** will mount the first x86‑64 root partition on the same disk as the ESP because we set the correct type GUIDs.
 - If you ever want a home partition later, give it the `home` type GUID and it will be mounted automatically too.
 
