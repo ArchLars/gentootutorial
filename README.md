@@ -309,14 +309,16 @@ sed -i 's/^# %wheel/%wheel/' /etc/sudoers
 
 ## Step 7.5 Swap File
 
+> Run the following commands as root.
+
 ```bash
-sudo dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
+dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
+chmod 600 /swapfile
+mkswap /swapfile
 ```
 
 ```bash
-sudo tee /etc/systemd/system/swapfile.swap >/dev/null <<'EOF'
+tee /etc/systemd/system/swapfile.swap >/dev/null <<'EOF'
 [Unit]
 Description=Swapfile for zswap
 After=systemd-modules-load.service
@@ -330,8 +332,8 @@ Priority=50
 WantedBy=swap.target
 EOF
 
-sudo systemctl daemon-reload
-sudo systemctl enable --now swapfile.swap
+systemctl daemon-reload
+systemctl enable --now swapfile.swap
 
 # verify
 swapon --show
