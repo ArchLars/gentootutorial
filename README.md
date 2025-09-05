@@ -86,11 +86,15 @@ cd /mnt/gentoo
 wget -O stage3.tar.xz "$(wget -qO- https://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64-systemd.txt | awk '/xz/{print "https://distfiles.gentoo.org/releases/amd64/autobuilds/"$1; exit}')"
 
 # Optionally fetch the DIGESTS and verify here
-# wget DIGESTS, gpg --keyserver hkps://keys.openpgp.org --recv-keys 0xBB572E0E2D182910 ...
+wget <DIGESTS_url>
+gpg --keyserver hkps://keys.openpgp.org --recv-keys 0xBB572E0E2D182910
+gpg --verify stage3.tar.xz.DIGESTS.asc stage3.tar.xz
 
 # Unpack (preserves xattrs, devices)
 tar xpf stage3.tar.xz --xattrs-include='*' --numeric-owner
 ```
+
+Verifying the signature ensures the tarball's integrity and authenticity.
 
 Copy DNS and mount special filesystems for the chroot:
 
