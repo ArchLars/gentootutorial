@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # Update environment for Wayland
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots
