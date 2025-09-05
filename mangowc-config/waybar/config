@@ -6,7 +6,23 @@
     "height": 28,
     "modules-left": ["mango/workspaces"],
     "modules-center": ["clock"],
-    "modules-right": ["tray"]
+    "modules-right": ["tray", "cpu", "memory", "network", "backlight"],
+    "cpu": {
+      "format": "{icon} {usage}%",
+      "format-icons": { "default": "\uf2db" }
+    },
+    "memory": {
+      "format": "{icon} {percentage}%",
+      "format-icons": { "default": "\uf538" }
+    },
+    "network": {
+      "format": "{icon} {ifname}",
+      "format-icons": { "default": "\uf1eb" }
+    },
+    "backlight": {
+      "format": "{icon} {percent}%",
+      "format-icons": { "default": "\uf0eb" }
+    }
   },
   {
     "name": "left",

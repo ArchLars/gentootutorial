@@ -40,3 +40,9 @@
   padding: 0 4px;
 }
 
+#cpu,
+#memory,
+#network,
+#backlight {
+  padding: 0 8px;
+}
