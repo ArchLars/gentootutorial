@@ -361,12 +361,18 @@ systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.serv
 
 ## Step 11, mangowc and Waybar
 
-Install the mangowc compositor, Waybar for panels, and a basic terminal.
+Install the mangowc compositor from the GURU repository, Waybar for panels, and a basic terminal. Enable the repository, accept keywords, and patch `wlroots` as required:
 
 ```bash
-emerge --ask \
-  gui-wm/mangowc gui-apps/waybar \
-  x11-terms/foot
+emerge --ask --verbose eselect-repository
+eselect repository enable guru
+emerge --sync guru
+echo "gui-libs/scenefx ~amd64" >> /etc/portage/package.accept_keywords
+echo "gui-wm/mangowc ~amd64" >> /etc/portage/package.accept_keywords
+git clone https://github.com/DreamMaoMao/mangowc /tmp/mangowc
+mkdir -p /etc/portage/patches/gui-libs/wlroots
+cp /tmp/mangowc/portage/patches/*.patch /etc/portage/patches/gui-libs/wlroots/
+emerge --ask --verbose gui-wm/mangowc gui-apps/waybar x11-terms/foot
 ```
 
 Copy the example Nord "Polar Night" configuration from this repository:
@@ -650,7 +656,15 @@ systemctl --global enable pipewire.socket pipewire-pulse.socket wireplumber.serv
 
 # NVIDIA + mangowc
 emerge --ask x11-drivers/nvidia-drivers gui-libs/egl-wayland
-emerge --ask gui-wm/mangowc gui-apps/waybar x11-terms/foot
+emerge --ask --verbose eselect-repository
+eselect repository enable guru
+emerge --sync guru
+echo 'gui-libs/scenefx ~amd64' >> /etc/portage/package.accept_keywords
+echo 'gui-wm/mangowc ~amd64' >> /etc/portage/package.accept_keywords
+git clone https://github.com/DreamMaoMao/mangowc /tmp/mangowc
+mkdir -p /etc/portage/patches/gui-libs/wlroots
+cp /tmp/mangowc/portage/patches/*.patch /etc/portage/patches/gui-libs/wlroots/
+emerge --ask --verbose gui-wm/mangowc gui-apps/waybar x11-terms/foot
 
 # Apps
 emerge --ask www-client/firefox-bin mail-client/thunderbird-bin app-misc/fastfetch
