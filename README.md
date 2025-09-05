@@ -202,8 +202,7 @@ Create a kernel command line file used by `kernel-install` for new entries. We k
 
 ```bash
 cat > /etc/kernel/cmdline << 'EOF'
-quiet loglevel=3 splash
-nvidia_drm.modeset=1
+nvidia_drm.modeset=1 nvidia_drm.modeset=1 nvidia_drm.fbdev=1
 zswap.enabled=1 zswap.max_pool_percent=25 zswap.shrinker_enabled=1 zswap.compressor=lz4
 EOF
 ```
