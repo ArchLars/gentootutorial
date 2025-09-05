@@ -7,10 +7,11 @@
 #
 # Options:
 #   --fonts             Install a Nerd Font (JetBrainsMono)
-#   --config            Copy local mangowc-config into ~/.config/mangowc
+#   --config            Copy local mangowc-config into ~/.config/mangowc (backs up existing config)
 #   --css               Apply pywal CSS variables to the mangowc style
 #   --wallpaper URL     Download wallpaper to ~/Pictures/wallpapers
 #   --pywal FILE        Run pywal for automatic color extraction
+#   --force             Overwrite existing mangowc config instead of backing up
 #   -h, --help          Show this help message
 #
 # With no options, --fonts, --config and --css run.  If --wallpaper is
@@ -41,8 +42,19 @@ install_nerd_fonts() {
 }
 
 copy_mangowc_config() {
+  local force="${1:-false}"
   local src="$REPO_ROOT/mangowc-config"
   local dest="$HOME/.config/mangowc"
+  if [[ -d "$dest" && -n "$(ls -A "$dest")" ]]; then
+    if [[ "$force" == true ]]; then
+      rm -rf "$dest"
+      echo "Overwriting existing mangowc config at $dest"
+    else
+      local backup="${dest}.backup-$(date +%Y%m%d%H%M%S)"
+      mv "$dest" "$backup"
+      echo "Existing mangowc config backed up to $backup"
+    fi
+  fi
   mkdir -p "$dest"
   cp -r "$src"/* "$dest"/
   echo "mangowc configuration copied to $dest"
@@ -89,7 +101,8 @@ run_pywal() {
 }
 
 main() {
-  local do_fonts=false do_config=false do_css=false wallpaper_url="" pywal_img=""
+  local do_fonts=false do_config=false do_css=false force=false
+  local wallpaper_url="" pywal_img=""
   if [[ $# -eq 0 ]]; then
     do_fonts=true; do_config=true; do_css=true
   fi
@@ -100,6 +113,7 @@ main() {
       --css) do_css=true ;;
       --wallpaper) wallpaper_url="$2"; shift ;;
       --pywal) pywal_img="$2"; shift ;;
+      --force) force=true ;;
       -h|--help) usage; exit 0 ;;
       *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
     esac
@@ -107,7 +121,7 @@ main() {
   done
 
   [[ "$do_fonts" == true ]] && install_nerd_fonts
-  [[ "$do_config" == true ]] && copy_mangowc_config
+  [[ "$do_config" == true ]] && copy_mangowc_config "$force"
   [[ "$do_css" == true ]] && apply_css_variables
 
   local downloaded=""
