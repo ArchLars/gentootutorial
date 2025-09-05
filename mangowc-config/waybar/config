@@ -4,9 +4,15 @@
     "layer": "top",
     "position": "top",
     "height": 28,
-    "modules-left": ["mango/workspaces"],
+    "modules-left": ["dwl/tags", "dwl/window"],
     "modules-center": ["clock"],
     "modules-right": ["tray", "cpu", "memory", "network", "backlight"],
+    "dwl/tags": {
+      "num-tags": 9
+    },
+    "dwl/window": {
+      "format": "[{layout}]{title}"
+    },
     "cpu": {
       "format": "{icon} {usage}%",
       "format-icons": { "default": "\uf2db" }
