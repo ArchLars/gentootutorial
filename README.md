@@ -157,7 +157,7 @@ VIDEO_CARDS="nvidia"
 INPUT_DEVICES="libinput"
 
 # Common toggles for a modern desktop
-USE="alsa bluetooth dbus egl elogind? - wayland vulkan pipewire pulseaudio udev X kde plasma sddm qt5 qt6 opengl -gtk -gnome"
+USE="alsa bluetooth dbus egl wayland vulkan pipewire pulseaudio udev X kde plasma sddm qt5 qt6 opengl -gtk -gnome"
 
 # ABI for Steam and 32-bit NV libs (profile handles multilib, this is just explicit)
 ABI_X86="64 32"
