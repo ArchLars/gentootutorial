@@ -1,0 +1,242 @@
+/* ------------------------------------------------------------------
+   mangowc Style – “Polar Night” Edition
+   ------------------------------------------------------------------
+   Palette reference (Nord Polar Night):
+     #2e3440  #3b4252  #434c5e  #4c566a  #d8dee9  #88c0d0
+   ------------------------------------------------------------------ */
+
+/* Theme Variables */
+:root {
+  --mnwc-base-0: #2e3440;   /* deepest background */
+  --mnwc-base-1: #3b4252;   /* panels / surfaces */
+  --mnwc-base-2: #434c5e;   /* active elements */
+  --mnwc-base-3: #4c566a;   /* hover / accents */
+  --mnwc-text:   #d8dee9;
+  --mnwc-accent: #88c0d0;
+
+  --mnwc-radius-sm: 4px;
+  --mnwc-radius-md: 8px;
+  --mnwc-radius-lg: 12px;
+  --mnwc-shadow:    0 4px 10px rgba(0,0,0,0.45);
+  --mnwc-border:    1px solid var(--mnwc-base-2);
+  --mnwc-spacing-sm: 4px;
+  --mnwc-spacing-md: 8px;
+  --mnwc-spacing-lg: 16px;
+}
+
+/* Global Reset ---------------------------------------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--mnwc-text);
+  font-family: "JetBrainsMono", monospace;
+}
+
+/* Root window background */
+body {
+  background: var(--mnwc-base-0);
+}
+
+/* Panels / Bars --------------------------------------------------- */
+.mnwc-panel {
+  background: var(--mnwc-base-1);
+  border: var(--mnwc-border);
+  border-radius: var(--mnwc-radius-md);
+  box-shadow: var(--mnwc-shadow);
+  padding: var(--mnwc-spacing-md);
+}
+
+/* Buttons --------------------------------------------------------- */
+.mnwc-button {
+  background: var(--mnwc-base-2);
+  border: var(--mnwc-border);
+  border-radius: var(--mnwc-radius-md);
+  padding: var(--mnwc-spacing-sm) var(--mnwc-spacing-md);
+  cursor: pointer;
+  transition: background 120ms ease, transform 80ms ease;
+  box-shadow: var(--mnwc-shadow);
+}
+.mnwc-button:hover {
+  background: var(--mnwc-base-3);
+}
+.mnwc-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+.mnwc-button--primary {
+  background: var(--mnwc-accent);
+  color: var(--mnwc-base-0);
+}
+
+/* Inputs ---------------------------------------------------------- */
+.mnwc-input {
+  background: var(--mnwc-base-1);
+  border: var(--mnwc-border);
+  border-radius: var(--mnwc-radius-sm);
+  padding: var(--mnwc-spacing-sm) var(--mnwc-spacing-md);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+}
+.mnwc-input:focus {
+  outline: none;
+  border-color: var(--mnwc-accent);
+  box-shadow: 0 0 0 2px rgba(136,192,208,0.25);
+}
+
+/* Cards / Dialogs ------------------------------------------------- */
+.mnwc-card,
+.mnwc-dialog {
+  background: var(--mnwc-base-1);
+  border: var(--mnwc-border);
+  border-radius: var(--mnwc-radius-lg);
+  box-shadow: var(--mnwc-shadow);
+  padding: var(--mnwc-spacing-lg);
+}
+
+/* Tooltips -------------------------------------------------------- */
+.mnwc-tooltip {
+  background: var(--mnwc-base-2);
+  border-radius: var(--mnwc-radius-sm);
+  padding: var(--mnwc-spacing-sm) var(--mnwc-spacing-md);
+  box-shadow: var(--mnwc-shadow);
+  font-size: 0.9em;
+}
+
+/* Notifications --------------------------------------------------- */
+.mnwc-notification {
+  background: var(--mnwc-base-2);
+  border: var(--mnwc-border);
+  border-radius: var(--mnwc-radius-md);
+  box-shadow: var(--mnwc-shadow);
+  padding: var(--mnwc-spacing-md);
+  margin-bottom: var(--mnwc-spacing-sm);
+}
+.mnwc-notification--success { border-color: #a3be8c; }
+.mnwc-notification--warning { border-color: #ebcb8b; }
+.mnwc-notification--error   { border-color: #bf616a; }
+
+/* Workspace Indicator --------------------------------------------- */
+.mnwc-workspace {
+  display: inline-block;
+  padding: var(--mnwc-spacing-sm);
+  border-radius: var(--mnwc-radius-sm);
+  background: var(--mnwc-base-1);
+  margin-right: var(--mnwc-spacing-sm);
+}
+.mnwc-workspace--active {
+  background: var(--mnwc-accent);
+  color: var(--mnwc-base-0);
+}
+
+/* Scrollbars (WebKit) --------------------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--mnwc-base-3);
+  border-radius: var(--mnwc-radius-sm);
+}
+
+/* Modal Overlay --------------------------------------------------- */
+.mnwc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(46,52,64,0.6);  /* base-0 with alpha */
+}
+
+/* Modal Window ---------------------------------------------------- */
+.mnwc-modal {
+  background: var(--mnwc-base-1);
+  border-radius: var(--mnwc-radius-lg);
+  border: var(--mnwc-border);
+  box-shadow: var(--mnwc-shadow);
+  padding: var(--mnwc-spacing-lg);
+}
+
+/* Status Badges --------------------------------------------------- */
+.mnwc-badge {
+  display: inline-block;
+  padding: 0 var(--mnwc-spacing-sm);
+  border-radius: var(--mnwc-radius-sm);
+  background: var(--mnwc-accent);
+  color: var(--mnwc-base-0);
+  font-size: 0.75em;
+}
+
+/* Sliders --------------------------------------------------------- */
+.mnwc-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--mnwc-radius-sm);
+  background: var(--mnwc-base-2);
+  outline: none;
+}
+.mnwc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mnwc-accent);
+  border: var(--mnwc-border);
+  cursor: pointer;
+}
+.mnwc-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mnwc-accent);
+  border: var(--mnwc-border);
+  cursor: pointer;
+}
+
+/* Tabs ------------------------------------------------------------ */
+.mnwc-tab {
+  display: inline-block;
+  padding: var(--mnwc-spacing-sm) var(--mnwc-spacing-md);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+.mnwc-tab:hover {
+  background: var(--mnwc-base-2);
+}
+.mnwc-tab--active {
+  border-bottom-color: var(--mnwc-accent);
+  background: var(--mnwc-base-2);
+}
+
+/* Tables ---------------------------------------------------------- */
+.mnwc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.mnwc-table th,
+.mnwc-table td {
+  padding: var(--mnwc-spacing-sm) var(--mnwc-spacing-md);
+  border: var(--mnwc-border);
+}
+.mnwc-table th {
+  background: var(--mnwc-base-2);
+}
+.mnwc-table tr:nth-child(even) {
+  background: var(--mnwc-base-1);
+}
+.mnwc-table tr:nth-child(odd) {
+  background: var(--mnwc-base-0);
+}
+
+/* Progress Bars --------------------------------------------------- */
+.mnwc-progress {
+  background: var(--mnwc-base-2);
+  border: var(--mnwc-border);
+  border-radius: var(--mnwc-radius-md);
+  overflow: hidden;
+  height: 8px;
+}
+.mnwc-progress__bar {
+  background: var(--mnwc-accent);
+  height: 100%;
+  width: var(--mnwc-progress-value, 0%);
+  transition: width 0.3s ease;
+}
+

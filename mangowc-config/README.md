@@ -1,6 +1,7 @@
 # mangowc Nord "Polar Night" example
 
 This directory contains a basic mangowc setup styled with the Nord "Polar Night" palette.
+The root `style.css` defines reusable components such as panels, buttons, tables and progress bars based on this palette.
 
 ## Usage
 
