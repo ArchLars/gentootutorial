@@ -730,3 +730,32 @@ exit; umount -R /mnt/gentoo; reboot
 ```
 
 ---
+
+## Rice Plan
+
+The `rice-plan.sh` script bootstraps a minimal Nord-themed desktop on top of the
+base install. It installs required fonts, runs
+[pywal](https://github.com/dylanaraps/pywal) on your wallpaper to generate a
+colour palette, and copies the example configs from this repository.
+
+### Prerequisites
+
+- A Nerd Font (e.g. JetBrains Mono Nerd Font)
+- [`pywal`](https://github.com/dylanaraps/pywal)
+- A wallpaper image
+
+### Example
+
+```bash
+# install dependencies (adjust package manager as needed)
+sudo emerge --ask media-fonts/jetbrains-mono app-misc/pywal
+
+# run the rice plan
+chmod +x rice-plan.sh
+./rice-plan.sh ~/Pictures/wallpapers/nord.png
+```
+
+For manual tweaks, see [mangowc-config](./mangowc-config/).
+
+![Nord rice screenshot placeholder](docs/rice-plan.png)
+
