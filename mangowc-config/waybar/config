@@ -1,0 +1,30 @@
+[
+  {
+    "name": "top",
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "modules-left": ["mango/workspaces"],
+    "modules-center": ["clock"],
+    "modules-right": ["tray"]
+  },
+  {
+    "name": "left",
+    "layer": "top",
+    "position": "left",
+    "orientation": "vertical",
+    "width": 48,
+    "modules-top": ["custom/term", "custom/browser"],
+    "modules-bottom": [],
+    "custom/term": {
+      "format": "{icon}",
+      "format-icons": { "default": "\uf120" },
+      "on-click": "foot"
+    },
+    "custom/browser": {
+      "format": "{icon}",
+      "format-icons": { "default": "\uf269" },
+      "on-click": "firefox"
+    }
+  }
+]

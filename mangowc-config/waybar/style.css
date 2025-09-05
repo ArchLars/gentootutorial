@@ -1,0 +1,31 @@
+* {
+  border: none;
+  border-radius: 0;
+  font-family: monospace;
+  font-size: 12px;
+  color: #d8dee9;
+}
+
+#top {
+  background: #2e3440;
+}
+
+#left {
+  background: #3b4252;
+}
+
+#left .module {
+  background: #434c5e;
+}
+
+#left .module:hover {
+  background: #4c566a;
+}
+
+#clock {
+  padding: 0 8px;
+}
+
+#tray {
+  padding: 0 4px;
+}
