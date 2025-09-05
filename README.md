@@ -301,8 +301,6 @@ sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 ```
 
-# systemd swap unit (unit name must match the file it controls)
-
 ```bash
 sudo tee /etc/systemd/system/swapfile.swap >/dev/null <<'EOF'
 [Unit]
