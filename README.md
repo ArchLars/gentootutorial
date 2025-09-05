@@ -237,7 +237,7 @@ editor no
 EOF
 ```
 
-You do not need to write a manual entry for each kernel, `sys-kernel/installkernel` plus `kernel-install` will do it. A stub entry can be created initially if desired:
+You do not need to write a manual entry for each kernel; with the `systemd` and `systemd-boot` flags, `sys-kernel/installkernel` uses `kernel-install` to create versioned entries automatically. A stale `/boot/loader/entries/gentoo.conf` that references missing `/vmlinuz` or `/initramfs` symlinks will break boot, so rely on the generated entries instead.
 
 - We intentionally omit `root=` in `options`. The **systemd GPT auto generator** will mount the first x86‑64 root partition on the same disk as the ESP because we set the correct type GUIDs.
 - If you ever want a home partition later, give it the `home` type GUID and it will be mounted automatically too.
