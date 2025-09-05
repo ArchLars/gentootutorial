@@ -293,6 +293,40 @@ sed -i 's/^# %wheel/%wheel/' /etc/sudoers
 
 ---
 
+## Step 7.5 Swap File
+
+```bash
+sudo fallocate -l 16G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+```
+
+# systemd swap unit (unit name must match the file it controls)
+
+```bash
+sudo tee /etc/systemd/system/swapfile.swap >/dev/null <<'EOF'
+[Unit]
+Description=Swapfile for zswap
+After=systemd-modules-load.service
+Requires=systemd-modules-load.service
+
+[Swap]
+What=/swapfile
+Priority=50
+
+[Install]
+WantedBy=swap.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now swapfile.swap
+
+# verify
+swapon --show
+```
+
+---
+
 ## Step 8, Networking, firewall, power tools
 
 ```bash
