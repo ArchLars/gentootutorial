@@ -1,4 +1,3 @@
-Got it. Here is a drop-in section you can paste into `AGENTS.md` as requested.
 
 ````md
 ### Wikiman Integration for Documentation and Wiki Lookup
