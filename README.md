@@ -30,7 +30,7 @@ loadkeys no
 lsblk -e7
 
 # Sync clock over network (helps with SSL)
-ntpd -qg -x -n -p pool.ntp.org || true
+timedatectl set-ntp true
 [ -d /sys/firmware/efi ] || { echo "Not booted in UEFI mode!"; exit 1; }
 ```
 
