@@ -720,6 +720,11 @@ emerge --ask www-client/firefox-bin mail-client/thunderbird-bin
 emerge --ask app-shells/zsh app-shells/zsh-autosuggestions app-shells/zsh-syntax-highlighting
 chsh -s /bin/zsh lars
 
+# Nordzy icon theme
+mkdir -p /usr/share/icons
+curl -L https://github.com/MolassesLover/Nordzy-icon/releases/latest/download/Nordzy.tar.gz \
+  | tar -xz -C /usr/share/icons
+
 # Exit and reboot
 exit; umount -R /mnt/gentoo; reboot
 ```
